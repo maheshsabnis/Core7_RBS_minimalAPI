@@ -1,5 +1,6 @@
 using Core7_RBS_minimalAPI.Models;
 using Core7_RBS_minimalAPI.Services;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,9 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>()
 
 builder.Services.AddScoped<SecurityServices>();
 builder.Services.AddAuthentication();
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("read", policy => policy.RequireRole("Manager", "Clerk"));
+
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -65,8 +68,6 @@ app.MapPost("/assigrole", async (UserRole userrole, SecurityServices serv) => {
 });
 
 
-
-
 app.MapGet("/weatherforecast", () =>
 {
     var forecast = Enumerable.Range(1, 5).Select(index =>
@@ -81,7 +82,7 @@ app.MapGet("/weatherforecast", () =>
 })
 .WithName("GetWeatherForecast")
 .WithOpenApi()
-.RequireAuthorization();
+.RequireAuthorization("read");
 
 app.Run();
 
